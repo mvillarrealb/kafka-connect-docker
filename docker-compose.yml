@@ -24,6 +24,8 @@ services:
     ports:
       - '8083:8083'
     network_mode: host
+    volumes: 
+      - ~/kafka-connect/connectors:/opt/connectors
     environment:
       - BOOTSTRAP_SERVERS=127.0.01:9092
       - GROUP_ID=kafka-connect-dev
