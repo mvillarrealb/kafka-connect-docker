@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  apache-zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
+    network_mode: host
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  apache-kafka:
+    image: 'bitnami/kafka:latest'
+    depends_on: 
+      - apache-zookeeper
+    ports:
+      - '9092:9092'
+    network_mode: host
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=localhost:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+  kafka-connect:
+    image: 'kafka-connect-server:0.0.3'
+    depends_on:
+      - apache-kafka
+    ports:
+      - '8083:8083'
+    network_mode: host
+    environment:
+      - BOOTSTRAP_SERVERS=127.0.01:9092
+      - GROUP_ID=kafka-connect-dev
+      - OFFSET_STORAGE_TOPIC=kafka-connect-offsets
+      - CONFIG_STORAGE_TOPIC=kafka-connect-config
+      - OFFSET_FLUSH_INTERVAL=8000
+  kafka-connect-ui:
+    image: 'landoop/kafka-connect-ui'
+    depends_on: 
+      - kafka-connect
+    ports:
+      - '8000:8000'
+    network_mode: host
+    environment: 
+      - CONNECT_URL=http://localhost:8083
